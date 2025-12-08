@@ -1,20 +1,27 @@
 require('dotenv').config();
-const { ReturnDocument } = require('mongodb');
 const mongoose = require('mongoose');
 
-
-///////////////////////mn hna bdit////////////////////////////
-
 // #1 Install and Set Up Mongoose
-// do not touch the line below , darrori yb9a bach ysift data l db server f atlasdb:
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-//
+mongoose.connect(process.env.MONGO_URI, { 
+  useNewUrlParser: true, 
+  useUnifiedTopology: true 
+});
+
+// Événements de connexion pour vérifier
+mongoose.connection.on('connected', () => {
+  console.log('✅ Connecté à MongoDB Atlas avec succès!');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.log('❌ Erreur de connexion:', err.message);
+});
+
 // 2. Create a Model
 const Schema = mongoose.Schema;
 const personSchema = new Schema({
   name: { type: String, required: true },
   age: Number,
-  favoriteFoods: [String],
+  favoriteFoods: [String]
 });
 
 const Person = mongoose.model('Person', personSchema);
@@ -24,10 +31,11 @@ const createAndSavePerson = (done) => {
   const person = new Person({
     name: 'Ayoub',
     age: 26,
-    favoriteFoods: ['Tajin', 'Cosscouss', 'Harira'],
+    favoriteFoods: ['Tajin', 'Cosscouss', 'Harira']
   });
+  
   person.save((err, data) => {
-    if (err) return console.error(err);
+    if (err) return done(err);
     done(null, data);
   });
 };
@@ -36,12 +44,12 @@ const createAndSavePerson = (done) => {
 const arrayOfPeople = [
   { name: 'Ayoub', age: 27, favoriteFoods: ['tajin goat'] },
   { name: 'Monia', age: 36, favoriteFoods: ['tanjia bgri'] },
-  { name: 'Kamal', age: 48, favoriteFoods: ['cousscouss tfaya'] },
+  { name: 'Kamal', age: 48, favoriteFoods: ['cousscouss tfaya'] }
 ];
 
 const createManyPeople = (arrayOfPeople, done) => {
   Person.create(arrayOfPeople, (err, people) => {
-    if (err) return console.log(err);
+    if (err) return done(err);
     done(null, people);
   });
 };
@@ -49,7 +57,7 @@ const createManyPeople = (arrayOfPeople, done) => {
 // 5. Use model.find() to Search Your Database
 const findPeopleByName = (personName, done) => {
   Person.find({ name: personName }, (err, personFound) => {
-    if (err) return console.log(err);
+    if (err) return done(err);
     done(null, personFound);
   });
 };
@@ -57,7 +65,7 @@ const findPeopleByName = (personName, done) => {
 // 6. Use model.findOne() to Return a Single Matching Document from Your Database
 const findOneByFood = (food, done) => {
   Person.findOne({ favoriteFoods: food }, (err, singleFood) => {
-    if (err) return console.log(err);
+    if (err) return done(err);
     done(null, singleFood);
   });
 };
@@ -65,7 +73,7 @@ const findOneByFood = (food, done) => {
 // 7. Use model.findById() to Search Your Database By _id
 const findPersonById = (personId, done) => {
   Person.findById(personId, (err, data) => {
-    if (err) return console.log(err);
+    if (err) return done(err);
     done(null, data);
   });
 };
@@ -75,11 +83,12 @@ const findEditThenSave = (personId, done) => {
   const foodToAdd = 'Tanjia';
 
   Person.findById(personId, (err, person) => {
-    if (err) return console.log(err);
+    if (err) return done(err);
+    
     person.favoriteFoods.push(foodToAdd);
-
+    
     person.save((err, updatedPerson) => {
-      if (err) return console.log(err);
+      if (err) return done(err);
       done(null, updatedPerson);
     });
   });
@@ -94,7 +103,7 @@ const findAndUpdate = (personName, done) => {
     { age: ageToSet },
     { new: true },
     (err, updatedDoc) => {
-      if (err) return console.log(err);
+      if (err) return done(err);
       done(null, updatedDoc);
     }
   );
@@ -103,17 +112,18 @@ const findAndUpdate = (personName, done) => {
 // 10. Delete One Document Using model.findByIdAndRemove
 const removeById = (personId, done) => {
   Person.findByIdAndRemove(personId, (err, data) => {
-    if (err) return console.log(err);
+    if (err) return done(err);
     done(null, data);
   });
 };
 
 // 11. Delete Many Documents with model.remove()
+// NOTE: Dans Mongoose 5.x, on utilise deleteMany() au lieu de remove()
 const removeManyPeople = (done) => {
   const nameToRemove = 'Karim';
 
-  Person.remove({ name: nameToRemove }, (err, dataToremove) => {
-    if (err) return console.log(err);
+  Person.deleteMany({ name: nameToRemove }, (err, dataToremove) => {
+    if (err) return done(err);
     done(null, dataToremove);
   });
 };
@@ -125,13 +135,12 @@ const queryChain = (done) => {
   Person.find({ favoriteFoods: foodToSearch })
     .sort('name')
     .limit(2)
-    .select(['name', 'favouriteFoods'])
+    .select(['name', 'favoriteFoods']) // Correction: 'favoriteFoods' pas 'favouriteFoods'
     .exec((err, data) => {
-      if (err) return console.log(err);
-      done(err, data);
+      if (err) return done(err);
+      done(null, data);
     });
 };
-
 
 /** **Well Done !!**
 /* You completed these challenges, let's go celebrate !
