@@ -7,7 +7,7 @@ mongoose.connect(process.env.MONGO_URI, {
   useUnifiedTopology: true 
 });
 
-// Optional: console logs for debugging (fine for FCC)
+// Optional: console logs for debugging
 mongoose.connection.on('connected', () => {
   console.log('✅ Connected to MongoDB Atlas');
 });
@@ -81,7 +81,7 @@ const findPersonById = (personId, done) => {
 
 // 8. Find, Edit, then Save (FCC requires foodToAdd = "hamburger")
 const findEditThenSave = (personId, done) => {
-  const foodToAdd = "hamburger"; // REQUIRED BY FCC TEST
+  const foodToAdd = "hamburger";
 
   Person.findById(personId, (err, person) => {
     if (err) return done(err);
@@ -118,17 +118,17 @@ const removeById = (personId, done) => {
   });
 };
 
-// 11. Delete Many People
+// 11. Delete Many People (FCC requires Model.remove)
 const removeManyPeople = (done) => {
   const nameToRemove = "Karim";
 
-  Person.deleteMany({ name: nameToRemove }, (err, result) => {
+  Person.remove({ name: nameToRemove }, (err, result) => {
     if (err) return done(err);
     return done(null, result);
   });
 };
 
-// 12. Chain Query Helpers
+// 12. Chain Search Query Helpers
 const queryChain = (done) => {
   const foodToSearch = "rfissa";
 
