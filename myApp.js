@@ -1,13 +1,13 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 
-// #1 Install and Set Up Mongoose
-mongoose.connect(process.env.MONGO_URI, { 
-  useNewUrlParser: true, 
-  useUnifiedTopology: true 
+// 1️⃣ Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
 });
 
-// Optional: console logs for debugging
+// Connection logs
 mongoose.connection.on('connected', () => {
   console.log('✅ Connected to MongoDB Atlas');
 });
@@ -16,7 +16,7 @@ mongoose.connection.on('error', (err) => {
   console.log('❌ MongoDB Error:', err.message);
 });
 
-// 2. Create a Schema and Model
+// 2️⃣ Schema and Model
 const Schema = mongoose.Schema;
 
 const personSchema = new Schema({
@@ -27,12 +27,12 @@ const personSchema = new Schema({
 
 const Person = mongoose.model('Person', personSchema);
 
-// 3. Create and Save a Person
+// 3️⃣ Create and Save a Person
 const createAndSavePerson = (done) => {
   const person = new Person({
     name: 'Ayoub',
     age: 26,
-    favoriteFoods: ['Tajin', 'Cosscous', 'Harira']
+    favoriteFoods: ['Tajin', 'Couscous', 'Harira']
   });
 
   person.save((err, data) => {
@@ -41,13 +41,7 @@ const createAndSavePerson = (done) => {
   });
 };
 
-// 4. Create Many People
-const arrayOfPeople = [
-  { name: 'Ayoub', age: 27, favoriteFoods: ['Tajin Goat'] },
-  { name: 'Monia', age: 36, favoriteFoods: ['Tanjia Bgri'] },
-  { name: 'Kamal', age: 48, favoriteFoods: ['Couscous Tfaya'] }
-];
-
+// 4️⃣ Create Many People
 const createManyPeople = (arrayOfPeople, done) => {
   Person.create(arrayOfPeople, (err, people) => {
     if (err) return done(err);
@@ -55,7 +49,18 @@ const createManyPeople = (arrayOfPeople, done) => {
   });
 };
 
-// 5. Find People by Name
+// Example seeding for deletion test
+const seedKarim = (done) => {
+  Person.create([
+    { name: "Karim", age: 25, favoriteFoods: ["Pizza"] },
+    { name: "Karim", age: 30, favoriteFoods: ["Burger"] }
+  ], (err, people) => {
+    if (err) return done(err);
+    return done(null, people);
+  });
+};
+
+// 5️⃣ Find People by Name
 const findPeopleByName = (personName, done) => {
   Person.find({ name: personName }, (err, data) => {
     if (err) return done(err);
@@ -63,7 +68,7 @@ const findPeopleByName = (personName, done) => {
   });
 };
 
-// 6. Find One Person by Food
+// 6️⃣ Find One Person by Food
 const findOneByFood = (food, done) => {
   Person.findOne({ favoriteFoods: food }, (err, data) => {
     if (err) return done(err);
@@ -71,7 +76,7 @@ const findOneByFood = (food, done) => {
   });
 };
 
-// 7. Find Person by ID
+// 7️⃣ Find Person by ID
 const findPersonById = (personId, done) => {
   Person.findById(personId, (err, data) => {
     if (err) return done(err);
@@ -79,7 +84,7 @@ const findPersonById = (personId, done) => {
   });
 };
 
-// 8. Find, Edit, then Save (FCC requires foodToAdd = "hamburger")
+// 8️⃣ Find, Edit, then Save
 const findEditThenSave = (personId, done) => {
   const foodToAdd = "hamburger";
 
@@ -95,7 +100,7 @@ const findEditThenSave = (personId, done) => {
   });
 };
 
-// 9. Update using findOneAndUpdate
+// 9️⃣ Update using findOneAndUpdate
 const findAndUpdate = (personName, done) => {
   const ageToSet = 20;
 
@@ -110,7 +115,7 @@ const findAndUpdate = (personName, done) => {
   );
 };
 
-// 10. Remove by ID
+// 10️⃣ Remove by ID
 const removeById = (personId, done) => {
   Person.findByIdAndRemove(personId, (err, removedDoc) => {
     if (err) return done(err);
@@ -118,7 +123,7 @@ const removeById = (personId, done) => {
   });
 };
 
-// 11. Delete Many People (FCC requires Model.remove)
+// 11️⃣ Delete Many People (FCC requires Model.remove)
 const removeManyPeople = (done) => {
   const nameToRemove = "Karim";
 
@@ -128,7 +133,7 @@ const removeManyPeople = (done) => {
   });
 };
 
-// 12. Chain Search Query Helpers
+// 12️⃣ Chain Query Helpers
 const queryChain = (done) => {
   const foodToSearch = "rfissa";
 
@@ -143,7 +148,6 @@ const queryChain = (done) => {
 };
 
 /** DO NOT EDIT BELOW THIS LINE */
-
 exports.PersonModel = Person;
 exports.createAndSavePerson = createAndSavePerson;
 exports.findPeopleByName = findPeopleByName;
@@ -155,3 +159,4 @@ exports.createManyPeople = createManyPeople;
 exports.removeById = removeById;
 exports.removeManyPeople = removeManyPeople;
 exports.queryChain = queryChain;
+exports.seedKarim = seedKarim; // optional, to seed before deleteMany test
