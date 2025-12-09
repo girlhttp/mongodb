@@ -8,10 +8,10 @@
   },
   "dependencies": {
     "body-parser": "^1.15.2",
-    "dotenv": "^16.0.0",
+    "dotenv": "^16.6.1",
     "express": "^4.12.4",
     "mongodb": "^7.0.0",
-    "mongoose": "^5.11.15"
+    "mongoose": "^5.13.23"
   },
   "repository": {
     "type": "git",

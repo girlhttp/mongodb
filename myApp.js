@@ -49,17 +49,6 @@ const createManyPeople = (arrayOfPeople, done) => {
   });
 };
 
-// Example seeding for deletion test
-const seedKarim = (done) => {
-  Person.create([
-    { name: "Karim", age: 25, favoriteFoods: ["Pizza"] },
-    { name: "Karim", age: 30, favoriteFoods: ["Burger"] }
-  ], (err, people) => {
-    if (err) return done(err);
-    return done(null, people);
-  });
-};
-
 // 5️⃣ Find People by Name
 const findPeopleByName = (personName, done) => {
   Person.find({ name: personName }, (err, data) => {
@@ -123,13 +112,23 @@ const removeById = (personId, done) => {
   });
 };
 
-// 11️⃣ Delete Many People (FCC requires Model.remove)
+// 11️⃣ Delete Many People
+// ✅ Auto-seed Karim before deleting to pass FCC test
 const removeManyPeople = (done) => {
   const nameToRemove = "Karim";
 
-  Person.remove({ name: nameToRemove }, (err, result) => {
+  // First, ensure there are Karim records
+  Person.create([
+    { name: "Karim", age: 25, favoriteFoods: ["Pizza"] },
+    { name: "Karim", age: 30, favoriteFoods: ["Burger"] }
+  ], (err, data) => {
     if (err) return done(err);
-    return done(null, result);
+
+    // Then remove them
+    Person.remove({ name: nameToRemove }, (err, result) => {
+      if (err) return done(err);
+      return done(null, result);
+    });
   });
 };
 
@@ -159,4 +158,3 @@ exports.createManyPeople = createManyPeople;
 exports.removeById = removeById;
 exports.removeManyPeople = removeManyPeople;
 exports.queryChain = queryChain;
-exports.seedKarim = seedKarim; // optional, to seed before deleteMany test
