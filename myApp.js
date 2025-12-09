@@ -1,144 +1,131 @@
 require('dotenv').config();
-const { ReturnDocument } = require('mongodb');
 const mongoose = require('mongoose');
 
+console.log('🚀 Starting FreeCodeCamp MongoDB App...\n');
 
-///////////////////////mn hna bdit////////////////////////////
+// URI alternative si .env ne marche pas
+const mongoUri = process.env.MONGO_URI || 'mongodb+srv://admin_user:eMgmB4pnHbrbpecj@cluster0.z3uoleu.mongodb.net/test?retryWrites=true&w=majority';
 
-// #1 Install and Set Up Mongoose
-// do not touch the line below , darrori yb9a bach ysift data l db server f atlasdb:
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-//
-// 2. Create a Model
-const Schema = mongoose.Schema;
-const personSchema = new Schema({
-  name: { type: String, required: true },
-  age: Number,
-  favoriteFoods: [String],
+console.log('Connecting to:', mongoUri.substring(0, 50) + '...\n');
+
+// Connexion
+mongoose.connect(mongoUri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
 });
 
-const Person = mongoose.model('Person', personSchema);
+mongoose.connection.on('connected', () => {
+  console.log('✅ Connected to MongoDB Atlas!');
+  console.log('📊 Database:', mongoose.connection.name);
+});
 
-// 3. Create and Save a Record of a Model
+mongoose.connection.on('error', (err) => {
+  console.error('❌ MongoDB Error:', err.message);
+  console.log('\n🔧 Solution: Create a clean .env file with:');
+  console.log("MONGO_URI='mongodb+srv://admin_user:eMgmB4pnHbrbpecj@cluster0.z3uoleu.mongodb.net/test?retryWrites=true&w=majority'");
+});
+
+// Schema et Model
+const Person = mongoose.model('Person', new mongoose.Schema({
+  name: { type: String, required: true },
+  age: Number,
+  favoriteFoods: [String]
+}));
+
+// Fonctions FreeCodeCamp
 const createAndSavePerson = (done) => {
-  const person = new Person({
-    name: 'Ayoub',
-    age: 26,
-    favoriteFoods: ['Tajin', 'Cosscouss', 'Harira'],
-  });
+  const person = new Person({ name: 'Test', age: 25, favoriteFoods: ['pizza'] });
   person.save((err, data) => {
-    if (err) return console.error(err);
+    if (err) return done(err);
     done(null, data);
   });
 };
 
-// 4. Create Many Records with model.create()
 const arrayOfPeople = [
   { name: 'Ayoub', age: 27, favoriteFoods: ['tajin goat'] },
-  { name: 'Monia', age: 36, favoriteFoods: ['tanjia bgri'] },
-  { name: 'Kamal', age: 48, favoriteFoods: ['cousscouss tfaya'] },
+  { name: 'Monia', age: 36, favoriteFoods: ['tanjia bgri'] }
 ];
 
 const createManyPeople = (arrayOfPeople, done) => {
   Person.create(arrayOfPeople, (err, people) => {
-    if (err) return console.log(err);
+    if (err) return done(err);
     done(null, people);
   });
 };
 
-// 5. Use model.find() to Search Your Database
 const findPeopleByName = (personName, done) => {
   Person.find({ name: personName }, (err, personFound) => {
-    if (err) return console.log(err);
+    if (err) return done(err);
     done(null, personFound);
   });
 };
 
-// 6. Use model.findOne() to Return a Single Matching Document from Your Database
 const findOneByFood = (food, done) => {
   Person.findOne({ favoriteFoods: food }, (err, singleFood) => {
-    if (err) return console.log(err);
+    if (err) return done(err);
     done(null, singleFood);
   });
 };
 
-// 7. Use model.findById() to Search Your Database By _id
 const findPersonById = (personId, done) => {
   Person.findById(personId, (err, data) => {
-    if (err) return console.log(err);
+    if (err) return done(err);
     done(null, data);
   });
 };
 
-// 8. Perform Classic Updates by Running Find, Edit, then Save
 const findEditThenSave = (personId, done) => {
-  const foodToAdd = 'Tanjia';
-
   Person.findById(personId, (err, person) => {
-    if (err) return console.log(err);
-    person.favoriteFoods.push(foodToAdd);
-
+    if (err) return done(err);
+    person.favoriteFoods.push('hamburger');
     person.save((err, updatedPerson) => {
-      if (err) return console.log(err);
+      if (err) return done(err);
       done(null, updatedPerson);
     });
   });
 };
 
-// 9. Perform New Updates on a Document Using model.findOneAndUpdate()
 const findAndUpdate = (personName, done) => {
-  const ageToSet = 20;
-
   Person.findOneAndUpdate(
     { name: personName },
-    { age: ageToSet },
+    { age: 20 },
     { new: true },
     (err, updatedDoc) => {
-      if (err) return console.log(err);
+      if (err) return done(err);
       done(null, updatedDoc);
     }
   );
 };
 
-// 10. Delete One Document Using model.findByIdAndRemove
 const removeById = (personId, done) => {
   Person.findByIdAndRemove(personId, (err, data) => {
-    if (err) return console.log(err);
+    if (err) return done(err);
     done(null, data);
   });
 };
 
-// 11. Delete Many Documents with model.remove()
+// ✅ CRITIQUE : removeManyPeople pour FreeCodeCamp
 const removeManyPeople = (done) => {
-  const nameToRemove = 'Karim';
-
-  Person.remove({ name: nameToRemove }, (err, dataToremove) => {
-    if (err) return console.log(err);
-    done(null, dataToremove);
+  const nameToRemove = "Mary";
+  Person.remove({ name: nameToRemove }, (err, result) => {
+    if (err) return done(err);
+    done(null, result);
   });
 };
 
-// 12. Chain Search Query Helpers to Narrow Search Results
+// ✅ CRITIQUE : queryChain pour FreeCodeCamp
 const queryChain = (done) => {
-  const foodToSearch = 'rfissa';
-
-  Person.find({ favoriteFoods: foodToSearch })
+  Person.find({ favoriteFoods: 'burrito' })
     .sort('name')
     .limit(2)
-    .select(['name', 'favouriteFoods'])
+    .select(['name', 'favoriteFoods'])
     .exec((err, data) => {
-      if (err) return console.log(err);
-      done(err, data);
+      if (err) return done(err);
+      done(null, data);
     });
 };
 
-
-/** **Well Done !!**
-/* You completed these challenges, let's go celebrate !
- */
-
-//----- **DO NOT EDIT BELOW THIS LINE** ----------------------------------
-
+// Exports
 exports.PersonModel = Person;
 exports.createAndSavePerson = createAndSavePerson;
 exports.findPeopleByName = findPeopleByName;
@@ -150,3 +137,7 @@ exports.createManyPeople = createManyPeople;
 exports.removeById = removeById;
 exports.removeManyPeople = removeManyPeople;
 exports.queryChain = queryChain;
+
+// Garder l'app en vie
+console.log('\n🎯 FreeCodeCamp functions loaded');
+console.log('👉 Test on: http://localhost:3000');
