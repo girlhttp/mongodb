@@ -7,15 +7,6 @@ mongoose.connect(process.env.MONGO_URI, {
   useUnifiedTopology: true
 });
 
-// Connection logs
-mongoose.connection.on('connected', () => {
-  console.log('✅ Connected to MongoDB Atlas');
-});
-
-mongoose.connection.on('error', (err) => {
-  console.log('❌ MongoDB Error:', err.message);
-});
-
 // 2️⃣ Schema and Model
 const Schema = mongoose.Schema;
 
@@ -37,15 +28,21 @@ const createAndSavePerson = (done) => {
 
   person.save((err, data) => {
     if (err) return done(err);
-    return done(null, data);
+    done(null, data);
   });
 };
 
 // 4️⃣ Create Many People
+const arrayOfPeople = [
+  { name: 'Ayoub', age: 27, favoriteFoods: ['tajin goat'] },
+  { name: 'Monia', age: 36, favoriteFoods: ['tanjia bgri'] },
+  { name: 'Kamal', age: 48, favoriteFoods: ['cousscouss tfaya'] }
+];
+
 const createManyPeople = (arrayOfPeople, done) => {
   Person.create(arrayOfPeople, (err, people) => {
     if (err) return done(err);
-    return done(null, people);
+    done(null, people);
   });
 };
 
@@ -53,7 +50,7 @@ const createManyPeople = (arrayOfPeople, done) => {
 const findPeopleByName = (personName, done) => {
   Person.find({ name: personName }, (err, data) => {
     if (err) return done(err);
-    return done(null, data);
+    done(null, data);
   });
 };
 
@@ -61,7 +58,7 @@ const findPeopleByName = (personName, done) => {
 const findOneByFood = (food, done) => {
   Person.findOne({ favoriteFoods: food }, (err, data) => {
     if (err) return done(err);
-    return done(null, data);
+    done(null, data);
   });
 };
 
@@ -69,7 +66,7 @@ const findOneByFood = (food, done) => {
 const findPersonById = (personId, done) => {
   Person.findById(personId, (err, data) => {
     if (err) return done(err);
-    return done(null, data);
+    done(null, data);
   });
 };
 
@@ -84,7 +81,7 @@ const findEditThenSave = (personId, done) => {
 
     person.save((err, updatedPerson) => {
       if (err) return done(err);
-      return done(null, updatedPerson);
+      done(null, updatedPerson);
     });
   });
 };
@@ -99,40 +96,31 @@ const findAndUpdate = (personName, done) => {
     { new: true },
     (err, updatedDoc) => {
       if (err) return done(err);
-      return done(null, updatedDoc);
+      done(null, updatedDoc);
     }
   );
 };
 
-// 10️⃣ Remove by ID
+// 🔟 Remove by ID
 const removeById = (personId, done) => {
   Person.findByIdAndRemove(personId, (err, removedDoc) => {
     if (err) return done(err);
-    return done(null, removedDoc);
+    done(null, removedDoc);
   });
 };
 
-// 11️⃣ Delete Many People
-// ✅ Auto-seed Karim before deleting to pass FCC test
+// 1️⃣1️⃣ Delete Many People - CORRECTED
 const removeManyPeople = (done) => {
   const nameToRemove = "Karim";
 
-  // First, ensure there are Karim records
-  Person.create([
-    { name: "Karim", age: 25, favoriteFoods: ["Pizza"] },
-    { name: "Karim", age: 30, favoriteFoods: ["Burger"] }
-  ], (err, data) => {
+  // Utilisez remove() exactement comme demandé dans l'instruction
+  Person.remove({ name: nameToRemove }, (err, result) => {
     if (err) return done(err);
-
-    // Then remove them
-    Person.remove({ name: nameToRemove }, (err, result) => {
-      if (err) return done(err);
-      return done(null, result);
-    });
+    done(null, result);
   });
 };
 
-// 12️⃣ Chain Query Helpers
+// 1️⃣2️⃣ Chain Query Helpers
 const queryChain = (done) => {
   const foodToSearch = "rfissa";
 
@@ -142,7 +130,7 @@ const queryChain = (done) => {
     .select(["name", "favoriteFoods"])
     .exec((err, data) => {
       if (err) return done(err);
-      return done(null, data);
+      done(null, data);
     });
 };
 
